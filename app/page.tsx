@@ -1,34 +1,27 @@
-"use client";
+""use client";
 
 import { useState } from "react";
 
 type Task = {
-  id: number;
+  id: string;
   text: string;
   completed: boolean;
 };
 
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([
-    { id: 1, text: "Estudiar para el examen", completed: false },
-    { id: 2, text: "Entregar trabajo", completed: false },
+    { id: "1", text: "Tarea de ejemplo", completed: false },
   ]);
   const [newTaskText, setNewTaskText] = useState("");
-  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+  const [deletedTasks, setDeletedTasks] = useState<Task[]>([]);
 
-  function deleteTask(id: number) {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
-  }
-
-  function handleAddTask(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key !== "Enter") return;
-
-    const trimmedText = newTaskText.trim();
-    if (trimmedText === "") return;
+  function addTask() {
+    const text = newTaskText.trim();
+    if (text === "") return;
 
     const newTask: Task = {
-      id: Date.now(),
-      text: trimmedText,
+      id: Date.now().toString(),
+      text,
       completed: false,
     };
 
@@ -36,110 +29,116 @@ export default function Home() {
     setNewTaskText("");
   }
 
-  return (
-    <main className="min-h-screen bg-slate-100 px-6 py-10">
-      <div className="mx-auto max-w-2xl">
-        <div className="rounded-2xl bg-white p-8 shadow-md">
-          {/* Encabezado */}
-          <div className="mb-8 text-center">
-            <h1 className="mb-2 text-3xl font-bold text-slate-800">
-              Mis tareas
-            </h1>
-            <p className="text-slate-500">
-              Organiza tus actividades de forma sencilla
-            </p>
-          </div>
 
+  function toggleTask(id: string) {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
+  }
+
+ 
+  function deleteTask(id: string) {
+    const taskToDelete = tasks.find((task) => task.id === id);
+    if (!taskToDelete) return;
+
+    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+    setDeletedTasks((prevDeleted) => [...prevDeleted, taskToDelete]);
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col items-center bg-zinc-50 font-sans dark:bg-black">
+      <main className="flex w-full max-w-md flex-col gap-6 px-6 py-16">
+        <h1 className="text-2xl font-semibold text-black dark:text-zinc-50">
+          Mi lista de tareas
+        </h1>
+
+       
+        <div className="flex gap-2">
           <input
             type="text"
-            placeholder="Escribe una tarea y presiona Enter..."
-            className="mb-6 w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
             value={newTaskText}
             onChange={(e) => setNewTaskText(e.target.value)}
-            onKeyDown={handleAddTask}
-            maxLength={100}
+            onKeyDown={(e) => e.key === "Enter" && addTask()}
+            placeholder="Escribe una nueva tarea..."
+            className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-black outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
           />
-
-          {/* Lista de tareas */}
-          <div className="space-y-3">
-            {tasks.map((task) => (
-              <div
-                key={task.id}
-                className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-4 transition hover:border-blue-200 hover:bg-blue-50"
-              >
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    className="h-5 w-5 cursor-pointer accent-blue-600"
-                    checked={task.completed}
-                    onChange={() =>
-                      setTasks((prevTasks) =>
-                        prevTasks.map((t) =>
-                          t.id === task.id
-                            ? { ...t, completed: !t.completed }
-                            : t
-                        )
-                      )
-                    }
-                  />
-
-
-                  {editingTaskId === task.id ? (
-                    <input
-                      type="text"
-                      value={task.text}
-                      autoFocus
-                      maxLength={100}
-                      className="rounded border border-blue-300 px-2 py-1 text-slate-800 outline-none"
-                      onChange={(e) =>
-                        setTasks((prevTasks) =>
-                          prevTasks.map((t) =>
-                            t.id === task.id ? { ...t, text: e.target.value } : t
-                          )
-                        )
-                      }
-                      onBlur={() => {
-                        setTasks((prevTasks) =>
-                          prevTasks.map((t) =>
-                            t.id === task.id
-                              ? { ...t, text: t.text.trim() }
-                              : t
-                          )
-                        );
-                        setEditingTaskId(null);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          setEditingTaskId(null);
-                        }
-                      }}
-                    />
-                  ) : (
-                    <span
-                      onClick={() => setEditingTaskId(task.id)}
-                      className={
-                        task.completed
-                          ? "cursor-pointer text-slate-400 line-through"
-                          : "cursor-pointer text-slate-700"
-                      }
-                    >
-                      {task.text}
-                    </span>
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => deleteTask(task.id)}
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-slate-500 transition hover:bg-red-50 hover:text-red-500"
-                >
-                  Eliminar
-                </button>
-              </div>
-            ))}
-          </div>
+          <button
+            onClick={addTask}
+            className="rounded-lg bg-black px-4 py-2 font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+          >
+            Agregar
+          </button>
         </div>
-      </div>
-    </main>
+
+        
+        <ul className="flex flex-col gap-2">
+          {tasks.length === 0 && (
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              No hay tareas todavía.
+            </p>
+          )}
+
+          {tasks.map((task) => (
+            <li
+              key={task.id}
+              className="flex items-center justify-between rounded-lg border border-zinc-200 px-3 py-2 dark:border-zinc-800"
+            >
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={task.completed}
+                  onChange={() => toggleTask(task.id)}
+                  className="h-4 w-4"
+                />
+                <span
+                  className={
+                    task.completed
+                      ? "text-zinc-400 line-through dark:text-zinc-600"
+                      : "text-black dark:text-zinc-50"
+                  }
+                >
+                  {task.text}
+                </span>
+              </div>
+
+            
+              <button
+                onClick={() => deleteTask(task.id)}
+                className="rounded px-2 py-1 text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
+                aria-label={`Eliminar tarea: ${task.text}`}
+              >
+                Eliminar
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        <div className="flex flex-col gap-2 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+          <h2 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            Papelera ({deletedTasks.length}{" "}
+            {deletedTasks.length === 1 ? "tarea eliminada" : "tareas eliminadas"})
+          </h2>
+
+          {deletedTasks.length === 0 ? (
+            <p className="text-sm text-zinc-400 dark:text-zinc-600">
+              La papelera está vacía.
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-1">
+              {deletedTasks.map((task) => (
+                <li
+                  key={task.id}
+                  className="rounded-lg bg-zinc-100 px-3 py-2 text-sm text-zinc-500 line-through dark:bg-zinc-900 dark:text-zinc-500"
+                >
+                  {task.text}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </main>
+    </div>
   );
 }
