@@ -16,6 +16,19 @@ export default function Home() {
   const [newTaskText, setNewTaskText] = useState("");
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
 
+  function addTask() {
+    const text = newTaskText.trim();
+    if (text === "") return;
+
+    const newTask: Task = {
+      id: Date.now().toString(),
+      text,
+      completed: false,
+    };
+
+    setTasks((prevTasks) => [...prevTasks, newTask]);
+    setNewTaskText("");
+    
   function deleteTask(id: number) {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
   }
@@ -132,14 +145,30 @@ export default function Home() {
                   type="button"
                   onClick={() => deleteTask(task.id)}
                   className="rounded-lg px-3 py-2 text-sm font-medium text-slate-500 transition hover:bg-red-50 hover:text-red-500"
+                  
+                  div className="flex flex-col gap-2 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+          <h2 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            Papelera ({deletedTasks.length}{" "}
+            {deletedTasks.length === 1 ? "tarea eliminada" : "tareas eliminadas"})
+          </h2>
+                {deletedTasks.length === 0 ? (
+            <p className="text-sm text-zinc-400 dark:text-zinc-600">
+              La papelera está vacía.
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-1">
+              {deletedTasks.map((task) => (
+                <li
+                  key={task.id}
+                  className="rounded-lg bg-zinc-100 px-3 py-2 text-sm text-zinc-500 line-through dark:bg-zinc-900 dark:text-zinc-500"
                 >
-                  Eliminar
-                </button>
-              </div>
-            ))}
-          </div>
+                  {task.text}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }
