@@ -15,6 +15,7 @@ export default function Home() {
   const [newTaskText, setNewTaskText] = useState("");
   const [deletedTasks, setDeletedTasks] = useState<Task[]>([]);
 
+  // ---- CREATE: agrega una nueva tarea a la lista ----
   function addTask() {
     const text = newTaskText.trim();
     if (text === "") return;
@@ -29,6 +30,9 @@ export default function Home() {
     setNewTaskText("");
   }
 
+  // ---- UPDATE (opcional): marca/desmarca una tarea como completada ----
+  // Si un compañero ya está haciendo el Update por su lado, puedes borrar
+  // esta función y el checkbox más abajo sin que afecte el resto.
   function toggleTask(id: string) {
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
@@ -37,6 +41,7 @@ export default function Home() {
     );
   }
 
+  // ---- DELETE: saca la tarea de la lista activa y la manda a la papelera ----
   function deleteTask(id: string) {
     const taskToDelete = tasks.find((task) => task.id === id);
     if (!taskToDelete) return;
@@ -52,6 +57,7 @@ export default function Home() {
           Mi lista de tareas
         </h1>
 
+        {/* Formulario para agregar tareas (Create) */}
         <div className="flex gap-2">
           <input
             type="text"
@@ -69,6 +75,7 @@ export default function Home() {
           </button>
         </div>
 
+        {/* Lista de tareas (Read) */}
         <ul className="flex flex-col gap-2">
           {tasks.length === 0 && (
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -99,6 +106,7 @@ export default function Home() {
                 </span>
               </div>
 
+              {/* Botón de eliminar (Delete) */}
               <button
                 onClick={() => deleteTask(task.id)}
                 className="rounded px-2 py-1 text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
@@ -110,6 +118,7 @@ export default function Home() {
           ))}
         </ul>
 
+        {/* Papelera: tareas eliminadas */}
         <div className="flex flex-col gap-2 border-t border-zinc-200 pt-4 dark:border-zinc-800">
           <h2 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
             Papelera ({deletedTasks.length}{" "}
@@ -137,4 +146,3 @@ export default function Home() {
     </div>
   );
 }
-
